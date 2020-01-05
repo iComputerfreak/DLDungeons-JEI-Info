@@ -1,0 +1,16 @@
+[
+{
+  "modid": "dldungeonsjeiinfo",
+  "name": "DLDungeons JEI Info",
+  "description": "Provides a JEI tab for the Doomlike Dungeons Loot.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["amup"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": [dldungeonsjbg]
+}
+]
