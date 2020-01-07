@@ -19,7 +19,7 @@ class InfoData {
     String id = "";
     int damage = 0;
     ArrayList<String> dungeons = new ArrayList<>();
-    String minAmount = "", maxAmount = "";
+    String minAmount = "0", maxAmount = "0";
     ITag tag = null;
     
 }
@@ -60,8 +60,12 @@ public class JEI implements IModPlugin {
         // Create Info data
         HashMap<String, InfoData> infoData = new HashMap<>();
         
-        
-        for (File file : specialChests.listFiles()) {
+        File[] lootConfigs = specialChests.listFiles();
+        if (lootConfigs == null) {
+            DLDungeonsJEIInfo.logger.error("Unable to get the list of loot configs.");
+            return;
+        }
+        for (File file : lootConfigs) {
             DLDungeonsJEIInfo.logger.info("Parsing file " + file.getName() + "...");
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(file.getAbsolutePath()));
@@ -77,8 +81,8 @@ public class JEI implements IModPlugin {
                         DLDungeonsJEIInfo.logger.warn("Error parsing config line: '" + line + "'.");
                         continue;
                     }
-                    String category = parts[0].trim();
-                    String tier = parts[1].trim();
+                    // String category = parts[0].trim();
+                    // String tier = parts[1].trim();
                     String rawID = parts[2].trim();
                     String id = rawID;
                     String minAmount = parts[3].trim();
@@ -105,15 +109,17 @@ public class JEI implements IModPlugin {
                     }
                     
                     // Put required data into InfoData hashmap
-                    if (infoData.get(id) == null) {
+                    InfoData d = infoData.get(id);
+                    if (d == null) {
                         infoData.put(id, new InfoData());
+                        d = infoData.get(id);
                     }
-                    infoData.get(id).dungeons.add(file.getName().replace(".cfg", ""));
-                    infoData.get(id).minAmount = minAmount;
-                    infoData.get(id).maxAmount = maxAmount;
-                    infoData.get(id).tag = tag;
-                    infoData.get(id).id = id;
-                    infoData.get(id).damage = damage;
+                    d.dungeons.add(file.getName().replace(".cfg", ""));
+                    d.minAmount = minAmount;
+                    d.maxAmount = maxAmount;
+                    d.tag = tag;
+                    d.id = id;
+                    d.damage = damage;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -123,12 +129,17 @@ public class JEI implements IModPlugin {
         
         // Register the descriptions
         for (String keyID : infoData.keySet()) {
+            InfoData data = infoData.get(keyID);
+            if (data.id.trim().isEmpty()) {
+                continue;
+            }
+            
             DLDungeonsJEIInfo.logger.info("Adding description for item " + keyID);
             
-            InfoData data = infoData.get(keyID);
             // Remove duplicates
             ArrayList<String> dungeons = new ArrayList<>(new HashSet<>(data.dungeons));
             
+            // Build the textual representation of the dungeon list.
             String dungeonString = "";
             if (dungeons.size() == 0) {
                 continue;
@@ -142,12 +153,16 @@ public class JEI implements IModPlugin {
                 dungeonString = dungeonString.substring(0, dungeonString.length() - 2);
                 dungeonString += " and " + dungeons.get(dungeons.size() - 1);
             }
+            
             String amountString = data.minAmount;
             if (!data.minAmount.equals(data.maxAmount)) {
                 amountString += "-" + data.maxAmount;
             }
+            
+            // The actual text
             String description = "Can be found in " + dungeonString + " dungeons.\nAmount: " + amountString;
             
+            // Try to register description for item
             try {
                 Item item = Item.getByNameOrId(data.id);
                 if (item == null) {
