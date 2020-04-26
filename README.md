@@ -1,5 +1,5 @@
-# DLDungeons-JEI-Info
-A JEI Plugin that shows an Info tab for the items that can be found in the DoomLike Dungeons.
+# DLDungeons JEI Info
+A Minecraft 1.12.2 JEI Plugin that shows an Info tab for the items that can be found in the DoomLike Dungeons.
 
 Highly WIP. Currently only supports specialized chest configs. The mod searches for the DoomLike Dungeons config folder and it's `SpecialChests` subfolder.
 It then reads the loot tables and parses them to add descriptions.
